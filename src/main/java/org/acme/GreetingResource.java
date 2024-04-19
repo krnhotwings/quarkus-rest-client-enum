@@ -27,7 +27,7 @@ public class GreetingResource {
 
     @POST @Path("resteasy")
     @Produces(MediaType.TEXT_PLAIN)
-    public MyEnum restBeanEnum(@RestForm MyEnum myEnum) {
+    public MyEnum restFormEnum(@RestForm MyEnum myEnum) {
         return myEnum;
     }
 
@@ -37,7 +37,12 @@ public class GreetingResource {
     }
 
     @POST @Path("restclient")
-    public PostResponse clientBeanEnum(@RestForm MyEnum myEnum) {
+    public PostResponse clientFormEnum(@RestForm MyEnum myEnum) {
         return api.post(myEnum);
+    }
+
+    @POST @Path("restclient/bean")
+    public PostResponse clientBeanEnum(@BeanParam MyBean myBean) {
+        return api.post(myBean.getMyEnum());
     }
 }

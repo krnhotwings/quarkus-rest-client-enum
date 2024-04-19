@@ -69,3 +69,11 @@ Response: POST https://httpbin.org/post, Status[200 OK], Headers[Date=Fri, 19 Ap
 
 The above uses the name of the enum itself (from `Enum#name()`?) rather than
 `MyEnum#toString()` like in the other examples.
+
+#### Bean Param Test
+
+Additional test for `@RestForm` of an enum inside an `@BeanParam` bean.
+
+```sh
+curl -X POST "http://localhost:8080/restclient/bean" -d "myEnum=test"
+```

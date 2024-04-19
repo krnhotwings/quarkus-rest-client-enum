@@ -1,56 +1,71 @@
 # quarkus-rest-client-enum
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+## Startup
 
-If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
-
-## Running the application in dev mode
-
-You can run your application in dev mode that enables live coding using:
-```shell script
-./gradlew quarkusDev
+```sh
+quarkus dev
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at http://localhost:8080/q/dev/.
+## Test
 
-## Packaging and running the application
 
-The application can be packaged using:
-```shell script
-./gradlew build
-```
-It produces the `quarkus-run.jar` file in the `build/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `build/quarkus-app/lib/` directory.
+### Hit RestEASY Endpoints
 
-The application is now runnable using `java -jar build/quarkus-app/quarkus-run.jar`.
-
-If you want to build an _über-jar_, execute the following command:
-```shell script
-./gradlew build -Dquarkus.package.type=uber-jar
+```sh
+curl -X GET "http://localhost:8080/resteasy?myEnum=test"
+curl -X POST "http://localhost:8080/resteasy" -d "myEnum=test"
 ```
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar build/*-runner.jar`.
+Both of the above produces expected *lowercase* `MyEnum.TEST` output.
 
-## Creating a native executable
+### Hit Rest Client Endpoints
 
-You can create a native executable using: 
-```shell script
-./gradlew build -Dquarkus.package.type=native
+#### Query Param Works
+
+```sh
+curl -X GET "http://localhost:8080/restclient?myEnum=test"
 ```
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using: 
-```shell script
-./gradlew build -Dquarkus.package.type=native -Dquarkus.native.container-build=true
+```
+Request: GET https://httpbin.org/get?myEnum=test Headers[User-Agent=Quarkus REST Client], Empty body
 ```
 
-You can then execute your native executable with: `./build/quarkus-rest-client-enum-1.0.0-SNAPSHOT-runner`
+```
+Response: GET https://httpbin.org/get?myEnum=test, Status[200 OK], Headers[Date=Fri, 19 Apr 2024 20:36:34 GMT Content-Type=application/json Content-Length=278 Connection=keep-alive Server=gunicorn/19.9.0 Access-Control-Allow-Origin=* Access-Control-Allow-Credentials=true], Body:
+{
+  "args": {
+    "myEnum": "test"
+  },
+  "headers": {
+    "Host": "httpbin.org",
+    "User-Agent"
+```
 
-If you want to learn more about building native executables, please consult https://quarkus.io/guides/gradle-tooling.
+Above return expected lowercase representation of `MyEnum.TEST` enum in both the
+request and response.
 
-## Provided Code
+#### Form Param Fails
 
-### REST
+```sh
+curl -X POST "http://localhost:8080/restclient" -d "myEnum=test"
+```
 
-Easily start your REST Web Services
+```
+Request: POST https://httpbin.org/post Headers[Content-Type=application/x-www-form-urlencoded User-Agent=Quarkus REST Client content-length=11], Body:
+myEnum=TEST
+```
 
-[Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
+```
+Response: POST https://httpbin.org/post, Status[200 OK], Headers[Date=Fri, 19 Apr 2024 20:38:45 GMT Content-Type=application/json Content-Length=417 Connection=keep-alive Server=gunicorn/19.9.0 Access-Control-Allow-Origin=* Access-Control-Allow-Credentials=true], Body:
+{
+  "args": {},
+  "data": "",
+  "files": {},
+  "form": {
+    "myEnum": "TEST"
+  },
+  "headers":
+```
+
+The above uses the name of the enum itself (from `Enum#name()`?) rather than
+`MyEnum#toString()` like in the other examples.

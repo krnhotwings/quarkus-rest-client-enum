@@ -25,6 +25,8 @@ public enum MyEnum {
 
     @Override
     public String toString() {
+        LOG.info("Hitting MyEnum#toString()...");
+
         return value;
     }
 }
